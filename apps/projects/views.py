@@ -1,8 +1,6 @@
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 
-from apps.teams.models import Membership
-
 from .filters import ProjectFilter
 from .models import Project
 from .permissions import IsProjectTeamAdmin

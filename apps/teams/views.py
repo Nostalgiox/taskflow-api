@@ -3,7 +3,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from .models import Membership, Team
+from .models import Team
 from .permissions import IsTeamAdmin, IsTeamOwner
 from .serializers import (
     AddMemberSerializer,

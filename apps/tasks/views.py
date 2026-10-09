@@ -64,6 +64,8 @@ class CommentViewSet(viewsets.ModelViewSet):
     http_method_names = ["get", "delete", "head", "options"]
 
     def get_queryset(self):
-        return Comment.objects.filter(
-            task__project__team__memberships__user=self.request.user
-        ).select_related("author", "task").distinct()
+        return (
+            Comment.objects.filter(task__project__team__memberships__user=self.request.user)
+            .select_related("author", "task")
+            .distinct()
+        )

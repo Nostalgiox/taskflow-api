@@ -73,9 +73,7 @@ class TaskSerializer(serializers.ModelSerializer):
         ).exists()
 
         if not is_member:
-            raise serializers.ValidationError(
-                "You must be a member of the project's team."
-            )
+            raise serializers.ValidationError("You must be a member of the project's team.")
         return project
 
     def validate_assignee_id(self, assignee):
@@ -101,9 +99,7 @@ class TaskSerializer(serializers.ModelSerializer):
         ).exists()
 
         if not is_member:
-            raise serializers.ValidationError(
-                "Assignee must be a member of the project's team."
-            )
+            raise serializers.ValidationError("Assignee must be a member of the project's team.")
         return assignee
 
 
