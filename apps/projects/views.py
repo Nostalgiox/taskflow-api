@@ -29,6 +29,5 @@ class ProjectViewSet(viewsets.ModelViewSet):
         return super().get_permissions()
 
     def perform_create(self, serializer):
-        team = serializer.validated_data["team"]
         # Walidacja uprawnień już jest w validate_team_id w serializerze
         serializer.save()
