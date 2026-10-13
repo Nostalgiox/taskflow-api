@@ -10,7 +10,25 @@ A REST API for managing teams, projects and tasks — built with Django REST Fra
 - 🚀 **API Docs (Swagger):** https://taskflow-api-production-6b42.up.railway.app/api/docs/
 - 🔐 **Admin Panel:** https://taskflow-api-production-6b42.up.railway.app/admin/
 
-> Try the API directly in Swagger UI — register a user and explore the endpoints.
+> Try the API directly in Swagger UI — log in with the demo account below and explore the endpoints.
+
+### Demo Credentials
+
+Try the API without registering:
+
+| Username | Password    | Role            |
+|----------|-------------|-----------------|
+| `demo`   | `demo12345` | Team owner      |
+| `anna`   | `demo12345` | Team member     |
+
+Steps:
+1. Open Swagger UI → `POST /api/auth/login/`
+2. Log in with `demo` / `demo12345`
+3. Copy the `access` token
+4. Click **Authorize** (top right) → paste `Bearer <access_token>`
+5. Explore endpoints: `/api/teams/`, `/api/projects/`, `/api/tasks/`
+
+> **Note:** Demo accounts are regular users (not staff). The admin panel requires a superuser.
 
 ## Tech Stack
 
@@ -35,6 +53,7 @@ A REST API for managing teams, projects and tasks — built with Django REST Fra
 - ✅ OpenAPI 3 docs with Swagger UI
 - ✅ Test suite with 97% coverage
 - ✅ CI/CD via GitHub Actions
+- ✅ Seed command with sample data (`python manage.py seed`)
 
 ## Architecture
 
@@ -70,6 +89,7 @@ Then in a separate terminal:
 
 ```bash
 docker compose exec web python manage.py migrate
+docker compose exec web python manage.py seed          # optional demo data
 docker compose exec web python manage.py createsuperuser
 ```
 
@@ -97,7 +117,7 @@ curl -X POST http://localhost:8000/api/auth/register/ \
 ```bash
 curl -X POST http://localhost:8000/api/auth/login/ \
   -H "Content-Type: application/json" \
-  -d '{"username": "dawid", "password": "strongpass123"}'
+  -d '{"username": "demo", "password": "demo12345"}'
 ```
 
 Response:
@@ -134,6 +154,8 @@ docker compose exec web pytest
 docker compose exec web pytest --cov=apps --cov-report=term-missing
 ```
 
+Coverage: **97%** (40 tests).
+
 ## Endpoints
 
 | Method | Endpoint | Description |
@@ -141,6 +163,7 @@ docker compose exec web pytest --cov=apps --cov-report=term-missing
 | POST | `/api/auth/register/` | Register a new user |
 | POST | `/api/auth/login/` | Login (returns JWT) |
 | POST | `/api/auth/refresh/` | Refresh access token |
+| POST | `/api/auth/verify/` | Verify token |
 | GET | `/api/auth/me/` | Current user profile |
 | GET/POST | `/api/teams/` | List / create teams |
 | GET/PATCH/DELETE | `/api/teams/{id}/` | Team detail |
@@ -151,7 +174,13 @@ docker compose exec web pytest --cov=apps --cov-report=term-missing
 | GET/POST | `/api/tasks/` | List / create tasks |
 | GET/PATCH/DELETE | `/api/tasks/{id}/` | Task detail |
 | GET/POST | `/api/tasks/{id}/comments/` | List / add comments |
-| DELETE | `/api/comments/{id}/` | Delete comment |
+| GET/DELETE | `/api/comments/{id}/` | Delete comment |
+
+### Filters
+
+- **Teams:** `?search=<query>`, `?ordering=-created_at`
+- **Projects:** `?status=active|archived`, `?team=<id>`, `?search=<query>`, `?ordering=-created_at`
+- **Tasks:** `?status=todo|in_progress|done`, `?priority=low|medium|high`, `?project=<id>`, `?assignee=me|none|<user_id>`, `?due_before=YYYY-MM-DD`, `?due_after=YYYY-MM-DD`, `?search=<query>`, `?ordering=-due_date`
 
 ## Environment Variables
 
@@ -162,6 +191,7 @@ See `.env.example`.
 | `DJANGO_SECRET_KEY` | Django secret key |
 | `DJANGO_DEBUG` | Debug mode (True/False) |
 | `DJANGO_ALLOWED_HOSTS` | Comma-separated list |
+| `DJANGO_SETTINGS_MODULE` | Settings module (`config.settings.prod` in production) |
 | `POSTGRES_*` | Database credentials (local dev only) |
 | `DATABASE_URL` | Full DB URL (used in production) |
 | `JWT_*` | JWT token lifetimes |
@@ -170,12 +200,13 @@ See `.env.example`.
 ## Deployment
 
 Deployed on [Railway](https://railway.app) with:
-- **Web service:** Dockerfile-based deploy (Gunicorn)
+
+- **Web service:** Dockerfile-based deploy (Gunicorn, 2 workers)
 - **Database:** PostgreSQL add-on
 - **Pre-deploy:** `python manage.py migrate --noinput`
-- **Start command:** `sh -c "python manage.py collectstatic --noinput && gunicorn config.wsgi:application ..."`
+- **Start command:** `sh -c "python manage.py collectstatic --noinput && gunicorn config.wsgi:application --bind 0.0.0.0:${PORT:-8000}"`
 
-Environment variables are managed via Railway dashboard.
+Environment variables are managed via the Railway dashboard.
 
 ## What I'd Improve
 
@@ -186,6 +217,7 @@ Environment variables are managed via Railway dashboard.
 - Add rate limiting with `django-ratelimit`
 - Split settings into more granular modules (e.g. `test.py`)
 - Add OpenAPI examples for actions with `@extend_schema`
+- Add custom domain
 
 ## License
 
