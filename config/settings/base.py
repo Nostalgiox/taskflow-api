@@ -76,11 +76,11 @@ WSGI_APPLICATION = "config.wsgi.application"
 DATABASES = {
     "default": dj_database_url.config(
         default=(
-            f"postgres://{config('POSTGRES_USER')}:"
-            f"{config('POSTGRES_PASSWORD')}@"
+            f"postgres://{config('POSTGRES_USER', default='taskflow')}:"
+            f"{config('POSTGRES_PASSWORD', default='taskflow')}@"
             f"{config('POSTGRES_HOST', default='db')}:"
             f"{config('POSTGRES_PORT', default='5432')}/"
-            f"{config('POSTGRES_DB')}"
+            f"{config('POSTGRES_DB', default='taskflow')}"
         ),
         conn_max_age=600,
         conn_health_checks=True,
