@@ -5,6 +5,13 @@ A REST API for managing teams, projects and tasks — built with Django REST Fra
 [![CI](https://github.com/Nostalgiox/taskflow-api/actions/workflows/ci.yml/badge.svg)](https://github.com/Nostalgiox/taskflow-api/actions/workflows/ci.yml)
 ![Coverage](https://img.shields.io/badge/coverage-97%25-brightgreen)
 
+## Live Demo
+
+- 🚀 **API Docs (Swagger):** https://taskflow-api-production-6b42.up.railway.app/api/docs/
+- 🔐 **Admin Panel:** https://taskflow-api-production-6b42.up.railway.app/admin/
+
+> Try the API directly in Swagger UI — register a user and explore the endpoints.
+
 ## Tech Stack
 
 - **Backend:** Django 5.1, Django REST Framework
@@ -14,6 +21,7 @@ A REST API for managing teams, projects and tasks — built with Django REST Fra
 - **Tests:** pytest, pytest-django, factory_boy (~97% coverage)
 - **Container:** Docker, Docker Compose
 - **Lint/format:** ruff
+- **Deploy:** Railway (Docker-based)
 
 ## Features
 
@@ -26,6 +34,7 @@ A REST API for managing teams, projects and tasks — built with Django REST Fra
 - ✅ Object-level permissions (users only see their teams' data)
 - ✅ OpenAPI 3 docs with Swagger UI
 - ✅ Test suite with 97% coverage
+- ✅ CI/CD via GitHub Actions
 
 ## Architecture
 
@@ -40,6 +49,7 @@ Key decisions:
 - **Object-level permissions** — each user sees only data from their teams
 - **Custom User model** — email required, ready for extension
 - **Docker Compose** — single command to run everything
+- **`dj-database-url` + WhiteNoise** — Railway-ready production setup
 
 ## Getting Started
 
@@ -152,9 +162,20 @@ See `.env.example`.
 | `DJANGO_SECRET_KEY` | Django secret key |
 | `DJANGO_DEBUG` | Debug mode (True/False) |
 | `DJANGO_ALLOWED_HOSTS` | Comma-separated list |
-| `POSTGRES_*` | Database credentials |
+| `POSTGRES_*` | Database credentials (local dev only) |
+| `DATABASE_URL` | Full DB URL (used in production) |
 | `JWT_*` | JWT token lifetimes |
 | `CORS_ALLOWED_ORIGINS` | Comma-separated list |
+
+## Deployment
+
+Deployed on [Railway](https://railway.app) with:
+- **Web service:** Dockerfile-based deploy (Gunicorn)
+- **Database:** PostgreSQL add-on
+- **Pre-deploy:** `python manage.py migrate --noinput`
+- **Start command:** `sh -c "python manage.py collectstatic --noinput && gunicorn config.wsgi:application ..."`
+
+Environment variables are managed via Railway dashboard.
 
 ## What I'd Improve
 
@@ -162,7 +183,9 @@ See `.env.example`.
 - Add activity log for teams and projects
 - Add file attachments to tasks
 - Add WebSocket support for real-time updates
-- Deploy with proper CI/CD pipeline (GitHub Actions → Railway)
+- Add rate limiting with `django-ratelimit`
+- Split settings into more granular modules (e.g. `test.py`)
+- Add OpenAPI examples for actions with `@extend_schema`
 
 ## License
 
